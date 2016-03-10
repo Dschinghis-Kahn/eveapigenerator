@@ -41,12 +41,35 @@ public class EveApiTest {
         Properties properties = new Properties();
         try {
             properties.load(EveApiTest.class.getClassLoader().getResourceAsStream("test.properties"));
-            keyId = Long.parseLong(properties.getProperty("keyId", ""));
-            verificationCode = properties.getProperty("verificationCode", "");
-            characterId = Long.parseLong(properties.getProperty("characterId", ""));
+            String value = properties.getProperty("keyId", "");
+            if (value != null && value.length() > 0) {
+                try {
+                    keyId = Long.parseLong(properties.getProperty("keyId", ""));
+                } catch (NumberFormatException e) {
+                    Assert.fail("KeyId is not a valid number!");
+                }
+            } else {
+                Assert.fail("KeyId is not configured in test.properties!");
+            }
+            value = properties.getProperty("verificationCode", "");
+            if (value != null && value.length() > 0) {
+                verificationCode = properties.getProperty("verificationCode", "");
+            } else {
+                Assert.fail("VerificationCode is not configured in test.properties!");
+            }
+            value = properties.getProperty("characterId", "");
+            if (value != null && value.length() > 0) {
+                try {
+                    characterId = Long.parseLong(properties.getProperty("characterId", ""));
+                } catch (NumberFormatException e) {
+                    Assert.fail("CharacterId is not a valid number!");
+                }
+            } else {
+                Assert.fail("CharacterId is not configured in test.properties!");
+            }
         } catch (IOException e) {
             Logger.getLogger(EveApiTest.class).error("File \"test.properties\" not found!", e);
-            Assert.fail("File \"test.properties\" not found!");
+            Assert.fail("File test.properties not found!");
         }
     }
 
