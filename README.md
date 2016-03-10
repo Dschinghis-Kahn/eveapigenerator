@@ -58,3 +58,12 @@ fieldList=
 fieldObject=
 ```
 
+###Updates
+1. Update and/or create the property files
+2. Run src/main/java/net.dschinghiskahn.eveapigenerator.EveApiGenerator
+3. Check the generated beans in src/main/api for errors
+4. Copy the generated beans from src/main/api into eveapis api directory
+5. Modify eveapis src/net.dschinghiskahn.eveapi.Api class if necessary (e.g. a new method for a new endpoint)
+6. Check and/or setup your src/test/java/test.properties
+7. Create new test cases in src/test/java/net.dschinghiskahn.eveapi.EveApiTest if appropriate
+8. Run src/test/java/net.dschinghiskahn.eveapi.EveApiTest as JUnit test to check if everything worked
