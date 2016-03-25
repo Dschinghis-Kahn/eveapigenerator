@@ -129,6 +129,32 @@ public class EveApiTest {
         }
     }
 
+    @Test()
+    public void getErrorResponse203() throws IOException {
+        Logger.getLogger(getClass()).info("Running test: getErrorResponse203()");
+        try {
+            Assert.assertNotNull(Api.getAccountBalance(1L, "", 0L));
+        } catch (EveApiException e) {
+            Assert.assertEquals("Wrong error code!", e.getCode().longValue(), 203L);
+            Assert.assertEquals("Wrong error message!", e.getMessage(), "Authentication failure.");
+            return;
+        }
+        Assert.fail("Exception expected!");
+    }
+
+    @Test()
+    public void getErrorResponse221() throws IOException {
+        Logger.getLogger(getClass()).info("Running test: getErrorResponse203()");
+        try {
+            Assert.assertNotNull(Api.getAccountBalance(0L, "", 0L));
+        } catch (EveApiException e) {
+            Assert.assertEquals("Wrong error code!", e.getCode().longValue(), 221);
+            Assert.assertEquals("Wrong error message!", e.getMessage(), "Illegal page request! Please verify the access granted by the key you are using!");
+            return;
+        }
+        Assert.fail("Exception expected!");
+    }
+
     @Test
     public void getAccountBalance() throws IOException {
         Logger.getLogger(getClass()).info("Running test: getAccountBalance()");
