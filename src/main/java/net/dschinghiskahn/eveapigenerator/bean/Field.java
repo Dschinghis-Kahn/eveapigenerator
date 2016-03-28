@@ -72,18 +72,26 @@ public class Field implements Comparable<Field> {
         } else {
             baseName = nameSingular;
         }
-        StringBuilder variableName = new StringBuilder();
-        variableName.append(Character.toLowerCase(baseName.charAt(0)));
+        return applyJavaNamingConvention(baseName, true);
+    }
+
+    private String applyJavaNamingConvention(String baseName, boolean isVariable) {
+        StringBuilder result = new StringBuilder();
+        if (isVariable) {
+            result.append(Character.toLowerCase(baseName.charAt(0)));
+        } else {
+            result.append(Character.toUpperCase(baseName.charAt(0)));
+        }
         for (int i = 1; i < baseName.length() - 1; i++) {
             if (Character.isUpperCase(baseName.charAt(i - 1)) && Character.isUpperCase(baseName.charAt(i))
                     && (Character.isUpperCase(baseName.charAt(i + 1)) || Character.isDigit(baseName.charAt(i + 1)))) {
-                variableName.append(Character.toLowerCase(baseName.charAt(i)));
+                result.append(Character.toLowerCase(baseName.charAt(i)));
             } else {
-                variableName.append(baseName.charAt(i));
+                result.append(baseName.charAt(i));
             }
         }
-        variableName.append(Character.toLowerCase(baseName.charAt(baseName.length() - 1)));
-        return variableName.toString();
+        result.append(Character.toLowerCase(baseName.charAt(baseName.length() - 1)));
+        return result.toString();
     }
 
     public String getGetterName() {
@@ -177,7 +185,7 @@ public class Field implements Comparable<Field> {
         if ("java.util.List".equals(className)) {
             result.append(String.format("    public List<%s> %s(){\n", getListType(), getGetterName()));
         } else {
-            result.append(String.format("    public %s %s(){\n", getSimpleType(), getGetterName()));
+            result.append(String.format("    public %s %s(){\n", applyJavaNamingConvention(getSimpleType(), false), getGetterName()));
         }
         result.append(String.format("        return %s;\n", getVariableName()));
         result.append(String.format("    }\n"));
@@ -214,17 +222,7 @@ public class Field implements Comparable<Field> {
                 result.append(String.format("    private List<%s> %s = new ArrayList<%s>();\n", getListType(), getVariableName(), getListType()));
             }
         } else {
-            if (!getOriginalApiName().equals(getVariableName())) {
-                if (isAttribute()) {
-                    result.append(String.format("    @Attribute(name = \"%s\", required = false)\n", getOriginalApiName()));
-                } else {
-                    if (isBase) {
-                        result.append(String.format("    @Path(\"result\")\n"));
-                    }
-                    result.append(String.format("    @Element(name = \"%s\", required = false)\n", getOriginalApiName()));
-                }
-                result.append(String.format("    private %s %s;\n", getSimpleType(), getVariableName()));
-            } else {
+            if (getOriginalApiName().equals(getVariableName())) {
                 if (isAttribute()) {
                     result.append(String.format("    @Attribute(required = false)\n"));
                 } else {
@@ -233,8 +231,17 @@ public class Field implements Comparable<Field> {
                     }
                     result.append(String.format("    @Element(required = false)\n"));
                 }
-                result.append(String.format("    private %s %s;\n", getSimpleType(), getVariableName()));
+            } else {
+                if (isAttribute()) {
+                    result.append(String.format("    @Attribute(name = \"%s\", required = false)\n", getOriginalApiName()));
+                } else {
+                    if (isBase) {
+                        result.append(String.format("    @Path(\"result\")\n"));
+                    }
+                    result.append(String.format("    @Element(name = \"%s\", required = false)\n", getOriginalApiName()));
+                }
             }
+            result.append(String.format("    private %s %s;\n", applyJavaNamingConvention(getSimpleType(), false), getVariableName()));
         }
 
         return result.toString();
