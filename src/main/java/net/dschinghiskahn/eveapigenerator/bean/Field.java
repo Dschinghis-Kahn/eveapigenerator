@@ -75,7 +75,8 @@ public class Field implements Comparable<Field> {
         StringBuilder variableName = new StringBuilder();
         variableName.append(Character.toLowerCase(baseName.charAt(0)));
         for (int i = 1; i < baseName.length() - 1; i++) {
-            if (Character.isUpperCase(baseName.charAt(i - 1)) && Character.isUpperCase(baseName.charAt(i)) && Character.isUpperCase(baseName.charAt(i + 1))) {
+            if (Character.isUpperCase(baseName.charAt(i - 1)) && Character.isUpperCase(baseName.charAt(i))
+                    && (Character.isUpperCase(baseName.charAt(i + 1)) || Character.isDigit(baseName.charAt(i + 1)))) {
                 variableName.append(Character.toLowerCase(baseName.charAt(i)));
             } else {
                 variableName.append(baseName.charAt(i));
