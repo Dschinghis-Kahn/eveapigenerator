@@ -36,7 +36,7 @@ src/main/resources
 - Field not ending with * are handled as attribute fields (e.g. &lt;tag field="value"/&gt;)
 - Fields of type List require a separate property defining the list elements
 - List elements are named as the lists singular (fieldList=characters needs a Character.properties file)
-- A lists singular can be customized with fieldList=listName<listEntry>
+- A lists singular can be customized with fieldList=listName&lt;listEntry&gt;
 
 Characters.properties:
 ```properties
