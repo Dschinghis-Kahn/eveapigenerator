@@ -16,22 +16,22 @@ public class Field implements Comparable<Field> {
     private String nameSingular;
     private int position;
     private boolean isAttribute;
-    private boolean isId;
     private boolean isBase;
     private String className;
     private boolean isLocalClass;
 
-    public Field(String name, Class<?> type, boolean isBase, int posistion) {
+    public Field(final String name, final Class<?> type, final boolean isBase, final int posistion) {
         this.name = name;
         isAttribute = !this.name.endsWith("*");
         if (!isAttribute) {
             this.name = this.name.substring(0, this.name.length() - 1);
         }
         if (type == null) {
+            Class<?> typeClass;
             try {
-                type = Class.forName(this.name);
-                className = type.getName();
-                isLocalClass = type.getName().startsWith("net.dschinghiskahn.");
+                typeClass = Class.forName(this.name);
+                className = typeClass.getName();
+                isLocalClass = typeClass.getName().startsWith("net.dschinghiskahn.");
             } catch (ClassNotFoundException e) {
                 className = this.name.replaceAll(this.name.replaceAll(".*\\.", ""),
                         this.name.replaceAll(".*\\.", "").substring(0, 1).toUpperCase() + this.name.replaceAll(".*\\.", "").substring(1));
@@ -62,12 +62,27 @@ public class Field implements Comparable<Field> {
             }
         }
         this.position = posistion;
-        this.isId = name.contains("ID");
         this.isBase = isBase;
     }
 
     public String getVariableName() {
-        return name.replaceAll("ID", "Id");
+        String baseName;
+        if (isList()) {
+            baseName = name;
+        } else {
+            baseName = nameSingular;
+        }
+        StringBuilder variableName = new StringBuilder();
+        variableName.append(Character.toLowerCase(baseName.charAt(0)));
+        for (int i = 1; i < baseName.length() - 1; i++) {
+            if (Character.isUpperCase(baseName.charAt(i - 1)) && Character.isUpperCase(baseName.charAt(i)) && Character.isUpperCase(baseName.charAt(i + 1))) {
+                variableName.append(Character.toLowerCase(baseName.charAt(i)));
+            } else {
+                variableName.append(baseName.charAt(i));
+            }
+        }
+        variableName.append(Character.toLowerCase(baseName.charAt(baseName.length() - 1)));
+        return variableName.toString();
     }
 
     public String getGetterName() {
@@ -83,8 +98,8 @@ public class Field implements Comparable<Field> {
     }
 
     @Override
-    public int compareTo(Field o) {
-        return name.compareTo(o.name);
+    public int compareTo(final Field other) {
+        return name.compareTo(other.name);
     }
 
     @Override
@@ -96,7 +111,7 @@ public class Field implements Comparable<Field> {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(final Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
@@ -148,7 +163,7 @@ public class Field implements Comparable<Field> {
         }
         if (isLocalClass) {
             result.add(new Import(Path.class));
-        } else {
+        } else if (!className.startsWith("java.lang")) {
             result.add(new Import(getType()));
         }
 
@@ -173,9 +188,11 @@ public class Field implements Comparable<Field> {
         StringBuilder result = new StringBuilder();
 
         if (isList()) {
-            String path = "rowset";
+            String path;
             if (isBase) {
                 path = "result/rowset";
+            } else {
+                path = "rowset";
             }
             result.append(String.format("    @Path(\"%s[%d]\")\n", path, getPosition()));
             result.append(String.format("    @Attribute(name=\"name\", required = false)\n"));
@@ -186,11 +203,17 @@ public class Field implements Comparable<Field> {
             result.append(String.format("    @Path(\"%s[%d]\")\n", path, getPosition()));
             result.append(String.format("    @Attribute(name=\"columns\", required = false)\n"));
             result.append(String.format("    private String rowsetColumns%d;\n\n", getPosition()));
-            result.append(String.format("    @Path(\"%s[%d]\")\n", path, getPosition()));
-            result.append(String.format("    @ElementList(type = %s.class, required = false, inline = true)\n", getListType()));
-            result.append(String.format("    private List<%s> %s = new ArrayList<%s>();\n", getListType(), getVariableName(), getListType()));
+            if (getOriginalApiName().equals(getVariableName())) {
+                result.append(String.format("    @Path(\"%s[%d]\")\n", path, getPosition()));
+                result.append(String.format("    @ElementList(type = %s.class, required = false, inline = true)\n", getListType()));
+                result.append(String.format("    private List<%s> %s = new ArrayList<%s>();\n", getListType(), getVariableName(), getListType()));
+            } else {
+                result.append(String.format("    @Path(\"%s[%d]\")\n", path, getPosition()));
+                result.append(String.format("    @ElementList(type = %s.class, required = false, inline = true)\n", getListType()));
+                result.append(String.format("    private List<%s> %s = new ArrayList<%s>();\n", getListType(), getVariableName(), getListType()));
+            }
         } else {
-            if (isId) {
+            if (!getOriginalApiName().equals(getVariableName())) {
                 if (isAttribute()) {
                     result.append(String.format("    @Attribute(name = \"%s\", required = false)\n", getOriginalApiName()));
                 } else {
