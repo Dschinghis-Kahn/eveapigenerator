@@ -23,11 +23,11 @@ public class ApiBean {
         this.isBase = isBase;
     }
 
-    public void addField(String fieldName, Class<?> fieldType) {
+    public void addField(String fieldName, String fieldType) {
         addField(fieldName, fieldType, 0);
     }
 
-    public void addField(String fieldName, Class<?> fieldType, int position) {
+    public void addField(String fieldName, String fieldType, int position) {
         fields.add(new Field(fieldName, fieldType, isBase, position));
     }
 
@@ -39,7 +39,7 @@ public class ApiBean {
 
         Set<Import> imports = new HashSet<Import>();
         for (Field field : fields) {
-            imports.addAll(field.getNeededImports());
+            imports.addAll(field.getImports());
         }
         imports.add(new Import(Root.class));
         if (isBase) {

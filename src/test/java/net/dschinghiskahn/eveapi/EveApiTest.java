@@ -176,6 +176,16 @@ public class EveApiTest {
     }
 
     @Test
+    public void getApiKeyInfo() throws IOException {
+        Logger.getLogger(getClass()).info("Running test: getApiKeyInfo()");
+        try {
+            Assert.assertNotNull(Api.getApiKeyInfo(keyId, verificationCode));
+        } catch (EveApiException e) {
+            Logger.getLogger(getClass()).warn("Could not test API: " + e.getMessage());
+        }
+    }
+
+    @Test
     public void getAssetList() throws IOException {
         Logger.getLogger(getClass()).info("Running test: getAssetList()");
         try {
@@ -214,7 +224,16 @@ public class EveApiTest {
         } catch (EveApiException e) {
             Logger.getLogger(getClass()).warn("Could not test API: " + e.getMessage());
         }
+    }
 
+    @Test
+    public void getCallList() throws IOException {
+        Logger.getLogger(getClass()).info("Running test: getCallList()");
+        try {
+            Assert.assertNotNull(Api.getCallList(keyId, verificationCode));
+        } catch (EveApiException e) {
+            Logger.getLogger(getClass()).warn("Could not test API: " + e.getMessage());
+        }
     }
 
     @Test

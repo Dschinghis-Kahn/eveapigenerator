@@ -61,33 +61,33 @@ public class EveApiGenerator {
                     url.endsWith(properties.getProperty("name").toLowerCase()));
             if (properties.getProperty("fieldLong") != null && properties.getProperty("fieldLong").length() > 0) {
                 for (String field : properties.getProperty("fieldLong").split(",")) {
-                    bean.addField(field, Long.class);
+                    bean.addField(field, Long.class.getName());
                 }
             }
             if (properties.getProperty("fieldString") != null && properties.getProperty("fieldString").length() > 0) {
                 for (String field : properties.getProperty("fieldString").split(",")) {
-                    bean.addField(field, String.class);
+                    bean.addField(field, String.class.getName());
                 }
             }
             if (properties.getProperty("fieldDouble") != null && properties.getProperty("fieldDouble").length() > 0) {
                 for (String field : properties.getProperty("fieldDouble").split(",")) {
-                    bean.addField(field, Double.class);
+                    bean.addField(field, Double.class.getName());
                 }
             }
             if (properties.getProperty("fieldDate") != null && properties.getProperty("fieldDate").length() > 0) {
                 for (String field : properties.getProperty("fieldDate").split(",")) {
-                    bean.addField(field, Date.class);
+                    bean.addField(field, Date.class.getName());
                 }
             }
             if (properties.getProperty("fieldList") != null && properties.getProperty("fieldList").length() > 0) {
                 int position = 1;
                 for (String field : properties.getProperty("fieldList").split(",")) {
-                    bean.addField(field, List.class, position++);
+                    bean.addField(field, List.class.getName(), position++);
                 }
             }
             if (properties.getProperty("fieldObject") != null && properties.getProperty("fieldObject").length() > 0) {
                 for (String field : properties.getProperty("fieldObject").split(",")) {
-                    bean.addField("net.dschinghiskahn.eveapi." + url.replaceAll("/", ".") + "." + field, null);
+                    bean.addField(field, "net.dschinghiskahn.eveapi.xxx." + field.replaceAll("\\*", ""));
                 }
             }
             output.write(bean.toString().getBytes());

@@ -27,10 +27,7 @@ public class Import implements Comparable<Import> {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((importName == null) ? 0 : importName.hashCode());
-        return result;
+        return importName.hashCode();
     }
 
     @Override

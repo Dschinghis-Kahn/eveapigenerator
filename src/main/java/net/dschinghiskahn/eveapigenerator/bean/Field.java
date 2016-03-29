@@ -3,6 +3,7 @@ package net.dschinghiskahn.eveapigenerator.bean;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import org.simpleframework.xml.Attribute;
@@ -12,67 +13,52 @@ import org.simpleframework.xml.Path;
 
 public class Field implements Comparable<Field> {
 
-    private String name;
-    private String nameSingular;
+    private String apiName;
+    private String classSimpleName;
+    private String variableName;
     private int position;
     private boolean isAttribute;
     private boolean isBase;
     private String className;
-    private boolean isLocalClass;
+    private boolean isList;
 
-    public Field(final String name, final Class<?> type, final boolean isBase, final int posistion) {
-        this.name = name;
-        isAttribute = !this.name.endsWith("*");
-        if (!isAttribute) {
-            this.name = this.name.substring(0, this.name.length() - 1);
-        }
-        if (type == null) {
-            Class<?> typeClass;
-            try {
-                typeClass = Class.forName(this.name);
-                className = typeClass.getName();
-                isLocalClass = typeClass.getName().startsWith("net.dschinghiskahn.");
-            } catch (ClassNotFoundException e) {
-                className = this.name.replaceAll(this.name.replaceAll(".*\\.", ""),
-                        this.name.replaceAll(".*\\.", "").substring(0, 1).toUpperCase() + this.name.replaceAll(".*\\.", "").substring(1));
-                isLocalClass = true;
-            }
-            this.name = this.name.replaceAll(".*\\.", "");
-            this.name = this.name.substring(0, 1).toLowerCase() + this.name.substring(1);
+    public Field(final String fieldName, final String className, final boolean isBase, final int position) {
+        if (fieldName.contains("<")) {
+            apiName = fieldName.substring(0, fieldName.indexOf('<'));
+        } else if (fieldName.contains("*")) {
+            apiName = fieldName.substring(0, fieldName.indexOf('*'));
         } else {
-            className = type.getName();
-            isLocalClass = type.getName().startsWith("net.dschinghiskahn.");
+            apiName = fieldName;
         }
-        if (name.contains("<")) {
-            this.nameSingular = this.name.substring(this.name.indexOf('<') + 1, this.name.indexOf('>'));
-            this.name = this.name.substring(0, this.name.indexOf('<'));
-        }
-        if (nameSingular == null) {
-            if (name.endsWith("s")) {
-                nameSingular = this.name.substring(0, this.name.length() - 1);
-                if (nameSingular.endsWith("ie")) {
-                    nameSingular = nameSingular.substring(0, nameSingular.length() - 2) + "y";
-                }
+        variableName = applyJavaNamingConvention(apiName, true);
+
+        isList = className.equals("java.util.List");
+        if (isList) {
+            if (fieldName.contains("<")) {
+                classSimpleName = applyJavaNamingConvention(fieldName.substring(fieldName.indexOf('<') + 1, fieldName.indexOf('>')), false);
             } else {
-                if (name.endsWith("List")) {
-                    nameSingular = this.name.substring(0, this.name.length() - 4);
-                } else {
-                    nameSingular = this.name;
+                classSimpleName = applyJavaNamingConvention(apiName, false);
+            }
+            if (classSimpleName.toLowerCase(Locale.getDefault()).endsWith("list")) {
+                classSimpleName = classSimpleName.substring(0, classSimpleName.length() - 4);
+            } else if (classSimpleName.toLowerCase(Locale.getDefault()).endsWith("queue")) {
+                classSimpleName = classSimpleName.substring(0, classSimpleName.length() - 5);
+            }
+            if (classSimpleName.endsWith("s")) {
+                classSimpleName = classSimpleName.substring(0, classSimpleName.length() - 1);
+                if (classSimpleName.endsWith("ie")) {
+                    classSimpleName = classSimpleName.substring(0, classSimpleName.length() - 2) + "y";
                 }
             }
-        }
-        this.position = posistion;
-        this.isBase = isBase;
-    }
-
-    public String getVariableName() {
-        String baseName;
-        if (isList()) {
-            baseName = name;
+            this.className = "net.dschinghiskahn.eveapi.xxx." + classSimpleName;
         } else {
-            baseName = nameSingular;
+            classSimpleName = applyJavaNamingConvention(className.replaceAll(".*\\.", ""), false);
+            this.className = className.toLowerCase(Locale.getDefault()).replaceAll(classSimpleName.toLowerCase(Locale.getDefault()), classSimpleName);
         }
-        return applyJavaNamingConvention(baseName, true);
+
+        isAttribute = !fieldName.endsWith("*");
+        this.position = position;
+        this.isBase = isBase;
     }
 
     private String applyJavaNamingConvention(String baseName, boolean isVariable) {
@@ -94,29 +80,14 @@ public class Field implements Comparable<Field> {
         return result.toString();
     }
 
-    public String getGetterName() {
-        return "get" + getVariableName().substring(0, 1).toUpperCase() + getVariableName().substring(1);
-    }
-
-    public String getType() {
-        return className;
-    }
-
-    public String getSimpleType() {
-        return className.replaceAll(".*\\.", "");
-    }
-
     @Override
     public int compareTo(final Field other) {
-        return name.compareTo(other.name);
+        return apiName.compareTo(other.apiName);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((name == null) ? 0 : name.hashCode());
-        return result;
+        return apiName.hashCode();
     }
 
     @Override
@@ -125,43 +96,27 @@ public class Field implements Comparable<Field> {
         if (obj == null) return false;
         if (getClass() != obj.getClass()) return false;
         Field other = (Field) obj;
-        if (name == null) {
-            if (other.name != null) return false;
-        } else if (!name.equals(other.name)) return false;
+        if (apiName == null) {
+            if (other.apiName != null) return false;
+        } else if (!apiName.equals(other.apiName)) return false;
         return true;
     }
 
-    public String getOriginalApiName() {
-        return name;
+    public String getVariableName() {
+        return variableName;
     }
 
-    public boolean isList() {
-        return "java.util.List".equals(className);
-    }
-
-    public String getListType() {
-        return nameSingular.substring(0, 1).toUpperCase() + nameSingular.substring(1, nameSingular.length());
-    }
-
-    public int getPosition() {
-        return position;
-    }
-
-    public boolean isAttribute() {
-        return isAttribute;
-    }
-
-    public Set<Import> getNeededImports() {
+    public Set<Import> getImports() {
         Set<Import> result = new HashSet<Import>();
 
-        if (isList()) {
+        if (isList) {
             result.add(new Import(List.class));
             result.add(new Import(ArrayList.class));
             result.add(new Import(ElementList.class));
             result.add(new Import(Path.class));
             result.add(new Import(Attribute.class));
         } else {
-            if (isAttribute()) {
+            if (isAttribute) {
                 result.add(new Import(Attribute.class));
             } else {
                 if (isBase) {
@@ -170,10 +125,10 @@ public class Field implements Comparable<Field> {
                 result.add(new Import(Element.class));
             }
         }
-        if (isLocalClass) {
+        if (className.startsWith("net.dschinghiskahn.")) {
             result.add(new Import(Path.class));
         } else if (!className.startsWith("java.lang")) {
-            result.add(new Import(getType()));
+            result.add(new Import(className));
         }
 
         return result;
@@ -182,12 +137,14 @@ public class Field implements Comparable<Field> {
     public String getGetterMethod() {
         StringBuilder result = new StringBuilder();
 
-        if ("java.util.List".equals(className)) {
-            result.append(String.format("    public List<%s> %s(){\n", getListType(), getGetterName()));
+        if (isList) {
+            result.append(String.format("    public List<%s> get%s(){\n", classSimpleName,
+                    variableName.substring(0, 1).toUpperCase(Locale.getDefault()) + variableName.substring(1)));
         } else {
-            result.append(String.format("    public %s %s(){\n", applyJavaNamingConvention(getSimpleType(), false), getGetterName()));
+            result.append(String.format("    public %s get%s(){\n", classSimpleName,
+                    variableName.substring(0, 1).toUpperCase(Locale.getDefault()) + variableName.substring(1)));
         }
-        result.append(String.format("        return %s;\n", getVariableName()));
+        result.append(String.format("        return %s;\n", variableName));
         result.append(String.format("    }\n"));
 
         return result.toString();
@@ -196,34 +153,28 @@ public class Field implements Comparable<Field> {
     public String getVariableDefinition() {
         StringBuilder result = new StringBuilder();
 
-        if (isList()) {
+        if (isList) {
             String path;
             if (isBase) {
                 path = "result/rowset";
             } else {
                 path = "rowset";
             }
-            result.append(String.format("    @Path(\"%s[%d]\")\n", path, getPosition()));
+            result.append(String.format("    @Path(\"%s[%d]\")\n", path, position));
             result.append(String.format("    @Attribute(name=\"name\", required = false)\n"));
-            result.append(String.format("    private String rowsetName%d;\n\n", getPosition()));
-            result.append(String.format("    @Path(\"%s[%d]\")\n", path, getPosition()));
+            result.append(String.format("    private String rowsetName%d;\n\n", position));
+            result.append(String.format("    @Path(\"%s[%d]\")\n", path, position));
             result.append(String.format("    @Attribute(name=\"key\", required = false)\n"));
-            result.append(String.format("    private String rowsetKey%d;\n\n", getPosition()));
-            result.append(String.format("    @Path(\"%s[%d]\")\n", path, getPosition()));
+            result.append(String.format("    private String rowsetKey%d;\n\n", position));
+            result.append(String.format("    @Path(\"%s[%d]\")\n", path, position));
             result.append(String.format("    @Attribute(name=\"columns\", required = false)\n"));
-            result.append(String.format("    private String rowsetColumns%d;\n\n", getPosition()));
-            if (getOriginalApiName().equals(getVariableName())) {
-                result.append(String.format("    @Path(\"%s[%d]\")\n", path, getPosition()));
-                result.append(String.format("    @ElementList(type = %s.class, required = false, inline = true)\n", getListType()));
-                result.append(String.format("    private List<%s> %s = new ArrayList<%s>();\n", getListType(), getVariableName(), getListType()));
-            } else {
-                result.append(String.format("    @Path(\"%s[%d]\")\n", path, getPosition()));
-                result.append(String.format("    @ElementList(type = %s.class, required = false, inline = true)\n", getListType()));
-                result.append(String.format("    private List<%s> %s = new ArrayList<%s>();\n", getListType(), getVariableName(), getListType()));
-            }
+            result.append(String.format("    private String rowsetColumns%d;\n\n", position));
+            result.append(String.format("    @Path(\"%s[%d]\")\n", path, position));
+            result.append(String.format("    @ElementList(type = %s.class, required = false, inline = true)\n", classSimpleName));
+            result.append(String.format("    private List<%s> %s = new ArrayList<%s>();\n", classSimpleName, variableName, classSimpleName));
         } else {
-            if (getOriginalApiName().equals(getVariableName())) {
-                if (isAttribute()) {
+            if (apiName.equals(variableName)) {
+                if (isAttribute) {
                     result.append(String.format("    @Attribute(required = false)\n"));
                 } else {
                     if (isBase) {
@@ -232,16 +183,16 @@ public class Field implements Comparable<Field> {
                     result.append(String.format("    @Element(required = false)\n"));
                 }
             } else {
-                if (isAttribute()) {
-                    result.append(String.format("    @Attribute(name = \"%s\", required = false)\n", getOriginalApiName()));
+                if (isAttribute) {
+                    result.append(String.format("    @Attribute(name = \"%s\", required = false)\n", apiName));
                 } else {
                     if (isBase) {
                         result.append(String.format("    @Path(\"result\")\n"));
                     }
-                    result.append(String.format("    @Element(name = \"%s\", required = false)\n", getOriginalApiName()));
+                    result.append(String.format("    @Element(name = \"%s\", required = false)\n", apiName));
                 }
             }
-            result.append(String.format("    private %s %s;\n", applyJavaNamingConvention(getSimpleType(), false), getVariableName()));
+            result.append(String.format("    private %s %s;\n", classSimpleName, variableName));
         }
 
         return result.toString();
