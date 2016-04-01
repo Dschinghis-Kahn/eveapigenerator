@@ -144,7 +144,7 @@ public class EveApiTest {
 
     @Test()
     public void getErrorResponse221() throws IOException {
-        Logger.getLogger(getClass()).info("Running test: getErrorResponse203()");
+        Logger.getLogger(getClass()).info("Running test: getErrorResponse221()");
         try {
             Assert.assertNotNull(Api.getAccountBalance(0L, "", 0L));
         } catch (EveApiException e) {
