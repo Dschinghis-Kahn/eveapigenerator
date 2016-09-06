@@ -8,7 +8,7 @@ import java.util.Set;
 
 import org.simpleframework.xml.Root;
 
-import net.dschinghiskahn.eveapi.util.AbstractApiResponse;
+import net.dschinghiskahn.eveapi.util.ApiResponse;
 
 public class ApiBean {
 
@@ -43,13 +43,13 @@ public class ApiBean {
         }
         imports.add(new Import(Root.class));
         if (isBase) {
-            imports.add(new Import(AbstractApiResponse.class));
+            imports.add(new Import(ApiResponse.class));
         }
         appendImports(result, imports);
 
         if (isBase) {
             result.append("@Root(name = \"eveapi\")\n");
-            result.append(String.format("public class %s extends AbstractApiResponse {\n\n", className));
+            result.append(String.format("public class %s extends ApiResponse {\n\n", className));
         } else {
             result.append("@Root(name = \"row\")\n");
             result.append(String.format("public class %s {\n\n", className));
