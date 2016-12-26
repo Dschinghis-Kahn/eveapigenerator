@@ -10,9 +10,11 @@ import java.util.Properties;
 
 import net.dschinghiskahn.eveapigenerator.bean.ApiBean;
 
-public class EveApiGenerator {
+public final class EveApiGenerator {
 
     private static final String OUTPUT_DIRECTORY = "src/main/api";
+
+    private EveApiGenerator() {}
 
     public static void main(String[] args) throws Exception {
         File outDir = new File(OUTPUT_DIRECTORY + "/net");

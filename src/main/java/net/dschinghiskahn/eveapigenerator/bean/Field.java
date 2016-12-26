@@ -92,13 +92,23 @@ public class Field implements Comparable<Field> {
 
     @Override
     public boolean equals(final Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
         Field other = (Field) obj;
         if (apiName == null) {
-            if (other.apiName != null) return false;
-        } else if (!apiName.equals(other.apiName)) return false;
+            if (other.apiName != null) {
+                return false;
+            }
+        } else if (!apiName.equals(other.apiName)) {
+            return false;
+        }
         return true;
     }
 
@@ -107,7 +117,7 @@ public class Field implements Comparable<Field> {
     }
 
     public Set<Import> getImports() {
-        Set<Import> result = new HashSet<Import>();
+        Set<Import> result = new HashSet<>();
 
         if (isList) {
             result.add(new Import(List.class));
@@ -138,10 +148,10 @@ public class Field implements Comparable<Field> {
         StringBuilder result = new StringBuilder();
 
         if (isList) {
-            result.append(String.format("    public List<%s> get%s(){\n", classSimpleName,
+            result.append(String.format("    public List<%s> get%s() {\n", classSimpleName,
                     variableName.substring(0, 1).toUpperCase(Locale.getDefault()) + variableName.substring(1)));
         } else {
-            result.append(String.format("    public %s get%s(){\n", classSimpleName,
+            result.append(String.format("    public %s get%s() {\n", classSimpleName,
                     variableName.substring(0, 1).toUpperCase(Locale.getDefault()) + variableName.substring(1)));
         }
         result.append(String.format("        return %s;\n", variableName));
@@ -161,13 +171,13 @@ public class Field implements Comparable<Field> {
                 path = "rowset";
             }
             result.append(String.format("    @Path(\"%s[%d]\")\n", path, position));
-            result.append(String.format("    @Attribute(name=\"name\", required = false)\n"));
+            result.append(String.format("    @Attribute(name = \"name\", required = false)\n"));
             result.append(String.format("    private String rowsetName%d;\n\n", position));
             result.append(String.format("    @Path(\"%s[%d]\")\n", path, position));
-            result.append(String.format("    @Attribute(name=\"key\", required = false)\n"));
+            result.append(String.format("    @Attribute(name = \"key\", required = false)\n"));
             result.append(String.format("    private String rowsetKey%d;\n\n", position));
             result.append(String.format("    @Path(\"%s[%d]\")\n", path, position));
-            result.append(String.format("    @Attribute(name=\"columns\", required = false)\n"));
+            result.append(String.format("    @Attribute(name = \"columns\", required = false)\n"));
             result.append(String.format("    private String rowsetColumns%d;\n\n", position));
             result.append(String.format("    @Path(\"%s[%d]\")\n", path, position));
             result.append(String.format("    @ElementList(type = %s.class, required = false, inline = true)\n", classSimpleName));

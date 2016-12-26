@@ -277,6 +277,16 @@ public class EveApiTest {
     }
 
     @Test
+    public void getClones() throws IOException {
+        Logger.getLogger(getClass()).info("Running test: getClones()");
+        try {
+            Assert.assertNotNull(Api.getClones(keyId, verificationCode, characterId));
+        } catch (EveApiException e) {
+            Logger.getLogger(getClass()).warn("Could not test API: " + e.getMessage());
+        }
+    }
+
+    @Test
     public void getContactList() throws IOException {
         Logger.getLogger(getClass()).info("Running test: getContactList()");
         try {
@@ -475,6 +485,16 @@ public class EveApiTest {
         Logger.getLogger(getClass()).info("Running test: getSkillQueue()");
         try {
             Assert.assertNotNull(Api.getSkillQueue(keyId, verificationCode, characterId));
+        } catch (EveApiException e) {
+            Logger.getLogger(getClass()).warn("Could not test API: " + e.getMessage());
+        }
+    }
+
+    @Test
+    public void getSkills() throws IOException {
+        Logger.getLogger(getClass()).info("Running test: getSkills()");
+        try {
+            Assert.assertNotNull(Api.getSkills(keyId, verificationCode, characterId));
         } catch (EveApiException e) {
             Logger.getLogger(getClass()).warn("Could not test API: " + e.getMessage());
         }

@@ -32,13 +32,23 @@ public class Import implements Comparable<Import> {
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) return true;
-        if (obj == null) return false;
-        if (getClass() != obj.getClass()) return false;
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
         Import other = (Import) obj;
         if (importName == null) {
-            if (other.importName != null) return false;
-        } else if (!importName.equals(other.importName)) return false;
+            if (other.importName != null) {
+                return false;
+            }
+        } else if (!importName.equals(other.importName)) {
+            return false;
+        }
         return true;
     }
 

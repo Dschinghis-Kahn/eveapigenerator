@@ -14,7 +14,7 @@ public class ApiBean {
 
     private String className;
     private String packageName;
-    private List<Field> fields = new ArrayList<Field>();
+    private List<Field> fields = new ArrayList<>();
     private boolean isBase;
 
     public ApiBean(String className, String packageName, boolean isBase) {
@@ -37,7 +37,7 @@ public class ApiBean {
 
         result.append(String.format("package %s;\n\n", packageName));
 
-        Set<Import> imports = new HashSet<Import>();
+        Set<Import> imports = new HashSet<>();
         for (Field field : fields) {
             imports.addAll(field.getImports());
         }
@@ -67,13 +67,13 @@ public class ApiBean {
 
     private void appendToString(StringBuilder result, List<Field> fields) {
         result.append(String.format("    @Override\n"));
-        result.append(String.format("    public String toString(){\n"));
-        result.append(String.format("        return \"%s [\" +\n", className));
+        result.append(String.format("    public String toString() {\n"));
+        result.append(String.format("        return \"%s [\"\n", className));
         Collections.sort(fields);
         for (Field field : fields) {
-            result.append(String.format("            \"%s = \" + %s + \", \" +\n", field.getVariableName(), field.getVariableName()));
+            result.append(String.format("            + \"%s = \" + %s + \", \"\n", field.getVariableName(), field.getVariableName()));
         }
-        result.append(String.format("            \"]\";\n"));
+        result.append(String.format("            + \"]\";\n"));
         result.append(String.format("    }\n\n"));
     }
 
@@ -97,7 +97,7 @@ public class ApiBean {
 
     private void appendImports(StringBuilder result, Set<Import> imports) {
         if (!imports.isEmpty()) {
-            List<Import> list = new ArrayList<Import>(imports);
+            List<Import> list = new ArrayList<>(imports);
             Collections.sort(list);
             for (int i = 0; i < list.size(); i++) {
                 if (i > 0 && !list.get(i).getFirstPathSegment().equals(list.get(i - 1).getFirstPathSegment())) {
