@@ -181,7 +181,7 @@ public class Field implements Comparable<Field> {
             result.append(String.format("    private String rowsetColumns%d;\n\n", position));
             result.append(String.format("    @Path(\"%s[%d]\")\n", path, position));
             result.append(String.format("    @ElementList(type = %s.class, required = false, inline = true)\n", classSimpleName));
-            result.append(String.format("    private List<%s> %s = new ArrayList<%s>();\n", classSimpleName, variableName, classSimpleName));
+            result.append(String.format("    private List<%s> %s = new ArrayList<>();\n", classSimpleName, variableName));
         } else {
             if (apiName.equals(variableName)) {
                 if (isAttribute) {
